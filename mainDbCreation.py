@@ -1,13 +1,10 @@
 import sqlite3 as sq
+from scrapeData import extractPlayerDeets , getMetaData , extractAllPlayers
 # import regex to sanitise list inputs
 import re
-
 db  = sq.connect('data/mydb')
 cursor = db.cursor()
-
-
 '''
-
     matchTable
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     uniqueId #    match_stats            # player_stats
@@ -16,10 +13,10 @@ cursor = db.cursor()
 
     # list[playerDict] == a dictionary for eachPlayer
     # uniqueMatchId to be used as primary key in player list
-
 '''
-
 def readDB():
+    #names = [description[0] for description in cursor.description]
+    #print(names)
     db.row_factory = sq.Row
     # create an execute statement
     insertStatement = ''' SELECT * FROM users1 '''
@@ -28,14 +25,13 @@ def readDB():
     # extract the table items
     data = cursor.fetchall()
 
-    print(len(data))
-    print(10*"-")
+    # uncomment to get a database readout
     for d in data:
         print(d)
-
-
+    print(10*"-")
+    print(len(data))
+    print(10*"-")
     return data
-
 
 def sanitise_list(colheads, liste):
     # create list to hold cleaned values
@@ -64,11 +60,6 @@ def insertPlayerData(colheads, liste):
     # commit the execution
     db.commit()
 
-
-
-
-
-
 def deleteTable():
     try:
         # create drop statement
@@ -92,3 +83,37 @@ def createTable(headers):
     # commit the comment
     db.commit()
     print("table commited")
+
+    # create a unique key so that no dublicate data  can be added
+    sql = ("CREATE UNIQUE INDEX id ON users1 (id);")
+    cursor.execute(sql)
+    db.commit()
+
+def readingFilesList():
+    file = open("gamesList")
+    fileList = []
+    for line in file:
+        fileList.append(line.rstrip('\n'))
+
+    return fileList
+
+# inputs the extracted list
+def insertListToDataBase(playerList, colheads):
+    for playerValues in playerList:
+        insertPlayerData(colheads, playerValues)
+
+def extractDaysPlayerMatchDetails():
+    # get the stats list to where all of the games are stored
+    fl = readingFilesList()
+    # create a list to get home and away teams
+    teams = ['home', 'away']
+    for match in fl:
+        # get the html page
+        stats = getMetaData(match)
+        #extract all match player details
+        for team in teams:
+            playerList , colheads = extractAllPlayers(stats, team)
+            # iterate over the playerList then put in DB
+            insertListToDataBase(playerList, colheads)
+            # read the db to show progressive growth
+            readDB()

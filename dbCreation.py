@@ -12,18 +12,18 @@ def createTable(headers):
 
 
 		## connects to the database
-		db = sq.connect('data/mydb')
+		#db = sq.connect('data/mydb')
 		# get a cursor object
-		cursor = db.cursor()
+		#cursor = db.cursor()
 		# check if the table exists
 
-		dropTableStatement = "DROP TABLE users1"
+		#dropTableStatement = "DROP TABLE users1"
 
-		cursor.execute(dropTableStatement)
+		#cursor.execute(dropTableStatement)
 
-		db.commit()
-		print("table deleted")
-
+		#db.commit()
+		#print("table deleted")
+	
 		print(headers[:rowNumbers])
 		insertStatement = "CREATE TABLE IF NOT EXISTS  users1 %s " % (tuple(headers[:rowNumbers]),)
 		#insertStatement = insertStatement + " VALUES %s" % (tuple(headers),)
@@ -41,8 +41,8 @@ def createTable(headers):
 		print(e)
 		raise e
 
-	finally:
-		db.close()
+	#finally:
+		#db.close()
 
 def inputValue():
 	name = "andreas"
@@ -127,10 +127,14 @@ def readDB():
 	cursor = db.cursor()
 	cursor.execute(''' SELECT * FROM users1 ''')
 	data = cursor.fetchall()
+	print(type(data))
+	'''
 	for row in data:
 		print(row.keys())
 		for r  in row:
 			print(r)
 		#print(row.values())
 		#print('{0} : {1}, {2}'.format(row['id'], row['name'], row['number']))
-	db.close()
+	#db.close()
+	'''
+	print(len(data))
