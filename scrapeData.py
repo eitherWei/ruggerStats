@@ -4,6 +4,8 @@ import re
 
 
 
+
+
 def getMetaData(url):
     # link to original data - will need to be taken in as a dynamic input
     print(url)
@@ -29,6 +31,7 @@ def extractPlayerDeets(stats, num, HA): # stats is the original dictionary: num 
     #print(name)
     for number in range(0, len(attriHeads)):
         #print(attri[num][attriHeads[number]])
+        # formating the data to allow for the dictionary in the input dictionary
         if isinstance(attri[num][attriHeads[number]],dict):
             #print(list(attri[num][attriHeads[number]].values())[0])
             # xheck to see if the player had any events
@@ -39,15 +42,34 @@ def extractPlayerDeets(stats, num, HA): # stats is the original dictionary: num 
                 playerValues.append("_")
         else:
             #print(attri[num][attriHeads[number]])
+            # standard string input store are normal
             playerValues.append(attri[num][attriHeads[number]])
 
     return(name , playerValues, attriHeads)
 
 
+def gameMetaData(stats):
+    metaDict = {}
+    metaDict['home'] = stats['gamePackage']['headToHead']['data'][0]['home']['name']
+    metaDict['away'] = stats['gamePackage']['headToHead']['data'][0]['away']['name']
+    metaDict['score'] = stats['gamePackage']['headToHead']['data'][0]['score']
+    return metaDict
+
+
 def extractAllPlayers(stats, HA):
     playerList = []
+    # method loops over json and returns the score of the game
+    gameOutComeDict = gameMetaData(stats)
     for i in range(15):
+        # returns return(name , playerValues, attriHeads)
         value = extractPlayerDeets(stats, i, HA)
+        # append the score to the end of each player result
+        value[1].append(gameOutComeDict['score'])
+        # append the score to the end of each player result
+        # hammy way of extending the input list to have extra detail
+        # TODO create additional tables 
+        value[2].append('finalScore')
+        # append the final list to the team list
         playerList.append(value[1])
     return (playerList , value[2])
 

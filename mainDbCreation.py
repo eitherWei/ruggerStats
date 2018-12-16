@@ -16,7 +16,7 @@ cursor = db.cursor()
     # list[playerDict] == a dictionary for eachPlayer
     # uniqueMatchId to be used as primary key in player list
 '''
-def readDB():
+def readDB(show = False):
     #names = [description[0] for description in cursor.description]
     #print(names)
     db.row_factory = sq.Row
@@ -28,8 +28,9 @@ def readDB():
     data = cursor.fetchall()
 
     # uncomment to get a database readout
-    for d in data:
-        print(d)
+    if(show):
+        for d in data:
+            print(d)
     print(10*"-")
     print(len(data))
     print(10*"-")
@@ -99,7 +100,13 @@ def createTable(headers):
     print("table commited")
 
     # create a unique key so that no dublicate data  can be added
-    sql = ("CREATE UNIQUE INDEX id ON users1 (id);")
+    # method needs to be update to return a concat key of game and player to ensure no dublicate data
+    #sql = ("CREATE INDEX id ON users1 (id);")
+    #cursor.execute(sql)
+    #db.commit()
+
+    # create an additional column that keeps score
+    sql = "ALTER TABLE users1 ADD COLUMN finalScore TEXT"
     cursor.execute(sql)
     db.commit()
 
@@ -116,11 +123,14 @@ def insertListToDataBase(playerList, colheads):
     for playerValues in playerList:
         insertPlayerData(colheads, playerValues)
 
+
+
 def extractDaysPlayerMatchDetails():
     # get the stats list to where all of the games are stored
     fl = readingFilesList()
     # create a list to get home and away teams
     teams = ['home', 'away']
+
     for match in fl:
         # get the html page
         stats = getMetaData(match)
@@ -128,6 +138,9 @@ def extractDaysPlayerMatchDetails():
         for team in teams:
             playerList , colheads = extractAllPlayers(stats, team)
             # iterate over the playerList then put in DB
+            print("length of colheads being inserted")
+            print(len(colheads))
+            print(colheads)
             insertListToDataBase(playerList, colheads)
             # read the db to show progressive growth
             readDB()
@@ -140,18 +153,33 @@ def extractDBcontent():
     for i in range(len(data)):
         df.loc[i] = data[i]
     #print(df.head())
-    wantedColheads = [ 'position', 'homeAway', 'tries', 'tryassists', 'points', 'kicks', 'passes', 'runs', 'metres', 'cleanbreaks', 'defendersbeaten', 'offload', 'lineoutwonsteal', 'turnoversconceded', 'tackles', 'missedtackles', 'lineoutswon', 'penaltiesconceded', 'yellowcards', 'redcards', 'penalties', 'penaltygoals', 'conversiongoals', 'dropgoalsconverted']
+    wantedColheads = [ 'position', 'homeAway', 'tries', 'tryassists', 'points', 'kicks', 'passes', 'runs', 'metres', 'cleanbreaks', 'defendersbeaten', 'offload', 'lineoutwonsteal', 'turnoversconceded', 'tackles', 'missedtackles', 'lineoutswon', 'penaltiesconceded', 'yellowcards', 'redcards', 'penalties', 'penaltygoals', 'conversiongoals', 'dropgoalsconverted', 'finalScore']
     new = df.filter(wantedColheads, axis=1)
 
     new = convertDFtoInts(new)
-    print(new.head())
+#    print(new.head())
+#    print(new['finalScore'])
     return new
 
 def convertDFtoInts(df):
+    print(df.head())
     df[df.columns[0]] = df[df.columns[0]].astype('category').cat.codes
     df = df.apply(pd.to_numeric, errors='ignore')
 
     df['homeAway'].replace(to_replace = ["home", "away"], value = [1,0], inplace = True)
+    ## casting win loss to a varaibale
+    # remove punctuation
+    df.finalScore = df.finalScore.apply(lambda x: x.split("-"))
+    # cast to int
+    winLoss = []
+    for index , row in df.iterrows():
+        # cast to int
+        temp = [int(i) for i in row['finalScore']]
+        # check if home team and return final score in their favour
+        if(row['homeAway'] == 1 and temp[0] > temp[1]):
+            winLoss.append(1)
+        else:
+            winLoss.append(0)
+    df.finalScore = winLoss
 
-    print(df.loc[0])
     return df
