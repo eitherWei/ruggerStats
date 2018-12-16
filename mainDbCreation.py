@@ -2,6 +2,8 @@ import sqlite3 as sq
 from scrapeData import extractPlayerDeets , getMetaData , extractAllPlayers
 # import regex to sanitise list inputs
 import re
+import pandas as pd
+
 db  = sq.connect('data/mydb')
 cursor = db.cursor()
 '''
@@ -31,7 +33,19 @@ def readDB():
     print(10*"-")
     print(len(data))
     print(10*"-")
+
+
     return data
+
+def returnColumnHeaders():
+    colheads = cursor.execute("PRAGMA table_info(users1)")
+    #print(type(colheads))
+    cols = []
+    for d in colheads:
+        #print(d)
+        cols.append(d[1])
+
+    return cols
 
 def sanitise_list(colheads, liste):
     # create list to hold cleaned values
@@ -117,3 +131,27 @@ def extractDaysPlayerMatchDetails():
             insertListToDataBase(playerList, colheads)
             # read the db to show progressive growth
             readDB()
+
+def extractDBcontent():
+    data = readDB()
+    colheads  = returnColumnHeaders()
+
+    df = pd.DataFrame( columns  = colheads , index = [i for i in range(len(data))])
+    for i in range(len(data)):
+        df.loc[i] = data[i]
+    #print(df.head())
+    wantedColheads = [ 'position', 'homeAway', 'tries', 'tryassists', 'points', 'kicks', 'passes', 'runs', 'metres', 'cleanbreaks', 'defendersbeaten', 'offload', 'lineoutwonsteal', 'turnoversconceded', 'tackles', 'missedtackles', 'lineoutswon', 'penaltiesconceded', 'yellowcards', 'redcards', 'penalties', 'penaltygoals', 'conversiongoals', 'dropgoalsconverted']
+    new = df.filter(wantedColheads, axis=1)
+
+    new = convertDFtoInts(new)
+    print(new.head())
+    return new
+
+def convertDFtoInts(df):
+    df[df.columns[0]] = df[df.columns[0]].astype('category').cat.codes
+    df = df.apply(pd.to_numeric, errors='ignore')
+
+    df['homeAway'].replace(to_replace = ["home", "away"], value = [1,0], inplace = True)
+
+    print(df.loc[0])
+    return df

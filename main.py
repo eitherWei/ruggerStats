@@ -1,10 +1,12 @@
 from scrapeData import extractPlayerDeets , getMetaData , extractAllPlayers
 #from dbCreation import insertPlayerData , inputValue , readDB , dynamicTableCreation , createTable
-from mainDbCreation import extractDaysPlayerMatchDetails, deleteTable, createTable , insertPlayerData , readDB , readingFilesList
+from mainDbCreation import  extractDBcontent, returnColumnHeaders ,  extractDaysPlayerMatchDetails, deleteTable, createTable , insertPlayerData , readDB , readingFilesList
 
-#fl = readingFilesList()
-#print(fl)
-#stats = getMetaData(fl[0])
+
+'''
+fl = readingFilesList()
+print(fl)
+stats = getMetaData(fl[0])
 
 #num = 3
 #HA = "away"
@@ -15,7 +17,7 @@ from mainDbCreation import extractDaysPlayerMatchDetails, deleteTable, createTab
 #--------------------deleteTable()
 
 # extracts all of the deets on all of the players for one side
-#playerList , colheads = extractAllPlayers(stats, 'home')
+playerList , colheads = extractAllPlayers(stats, 'home')
 
 ## runs table , should only be run once
 #eateTable(colheads)
@@ -27,12 +29,19 @@ from mainDbCreation import extractDaysPlayerMatchDetails, deleteTable, createTab
 
 #insertListToDataBase(playerList, colheads)
 #readDB()
-#print(colheads)
+'''
 
 #inputValue()
 # - readDB()
 # - deleteTable()
-readDB()
+
+
+
+#print(10*"-")
+#print(colheads)
+df = extractDBcontent()
+
+
 
 
 #extractDaysPlayerMatchDetails()
