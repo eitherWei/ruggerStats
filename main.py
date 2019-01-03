@@ -1,4 +1,4 @@
-from scrapeData import extractPlayerDeets , getMetaData , extractAllPlayers
+from scrapeData import extractPlayerDeets , getMetaData , extractAllPlayers , getGameMetaData
 #from dbCreation import insertPlayerData , inputValue , readDB , dynamicTableCreation , createTable
 from mainDbCreation import  extractDBcontent, returnColumnHeaders ,  extractDaysPlayerMatchDetails, deleteTable, createTable , insertPlayerData , readDB , readingFilesList
 '''
@@ -26,7 +26,7 @@ createTable(colheads)
 #insertListToDataBase(playerList, colheads)
 #readDB()
 '''
-
+'''
 # use the old column headers to inform the new ones
 colheads  = returnColumnHeaders()
 print(len(colheads))
@@ -42,3 +42,15 @@ print(len(colheads))
 #print(colheads)
 df = extractDBcontent()
 print(df.head())
+
+df.to_csv('data/processedTable.csv')
+'''
+
+
+# extract metadata for last weekends match
+# 1 get files
+fl = readingFilesList()
+print(fl)
+stats = getMetaData(fl[0])
+print(fl[0])
+getGameMetaData(stats)

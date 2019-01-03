@@ -1,6 +1,7 @@
 import requests
 import json
 import re
+import pprint
 
 
 
@@ -67,12 +68,116 @@ def extractAllPlayers(stats, HA):
         value[1].append(gameOutComeDict['score'])
         # append the score to the end of each player result
         # hammy way of extending the input list to have extra detail
-        # TODO create additional tables 
+        # TODO create additional tables
         value[2].append('finalScore')
         # append the final list to the team list
         playerList.append(value[1])
     return (playerList , value[2])
 
+def getGameMetaData(stats):
+    metaDict = {}
+    print(stats.keys())
+#    print(stats['gamePackage'])
+    ## iterated as far as gamePackage all empty
+#    print(pprint.pprint(stats['gamePackage']))
+
+    datum = stats['gamePackage']
+    print(type(datum))
+    import pandas as pd
+
+    #df = pd.DataFrame(datum)
+    #print(df.head())
+
+    #print(len(datum.keys()))
+    #print(datum.keys())
+    #print(10*"-")
+    #print(datum['matchEvents'].keys())
+
+
+    #print(10*"=")
+    #print(datum['matchEvents']['col'])
+    #print(10*"*")
+    #print(datum['matchAttacking'].keys())
+    #print(10*"attacking~")
+    #print(datum['matchAttacking']['col'])
+    #print(10*"~~")
+    #print(datum.keys())
+    #print(10*"# # ")
+    #print(datum[list(datum.keys())[18]])
+    #print(list(datum.keys())[18])
+    #print("--"*10)
+    #num = 23
+    #print(datum[list(datum.keys())[num]])
+    #print(10*("&&"))
+    #print(list(datum.keys())[num])
+    ##matchLineUp == full list of all players
+    print("\n")
+    print("------------------------------")
+    print("matchEvents")
+    print("------------------------------")
+    print("\n\n\n")
+    d = extractmatchEvents(datum['matchEvents'])
+    #print(d)
+
+
+def extractmatchEvents(datum):
+    # keys found in matchEvents
+#    print(datum.keys())
+    # drill into the key column  - it contains the matchEvent of interest
+    d = datum['col']
+    # examine the keys for areas of interest
+    #print(type(d))
+    print(10*"== zero ==")
+
+    d_0 = d[0]
+    print(len(d_0))
+    print(d_0)
+    print(50*"=")
+    print("\n")
+
+
+    ## module drills into text found in the first list and retrieves
+    ## number of tries in the game
+    k = list(d_0)
+    for w in k:
+        print(type(w))
+        print(w.keys())
+        print("-----------------------\n")
+        print(w['type'])
+        print(type(w['type']))
+        print("-----------------------------\n")
+
+        print(w['data'])
+        print(type(w['data']))
+        print(len(w['data']))
+        print(w['data'][0])
+        print(type(w['data'][0]))
+        print(list(w['data'][0].keys()))
+        print(list(w['data'][0].values()))
+
+
+
+    '''
+    print(10*"== one =")
+    d_1 = d[1]
+
+    print(len(d_1))
+
+    print(10*"-- a --")
+    print(type(d_1[0]))
+    print(d_1[0].keys())
+
+    print(10*"-- b --")
+    print(d_1[1].keys())
+    print(type(d_1[1]))
+    '''
+
+    return d
+
+
+
+
+    #print(datum['matchDetails']['Game Info'])
 
 
 #######################################################
