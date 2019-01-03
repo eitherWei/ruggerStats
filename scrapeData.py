@@ -138,24 +138,19 @@ def extractmatchEvents(datum):
 
     ## module drills into text found in the first list and retrieves
     ## number of tries in the game
+    #trydata = type(k['data'][0])
+#    print(type(trydata))
+    ## key is made up of type/data - we are interested in data
     k = list(d_0)
-    for w in k:
-        print(type(w))
-        print(w.keys())
-        print("-----------------------\n")
-        print(w['type'])
-        print(type(w['type']))
-        print("-----------------------------\n")
-
-        print(w['data'])
-        print(type(w['data']))
-        print(len(w['data']))
-        print(w['data'][0])
-        print(type(w['data'][0]))
-        print(list(w['data'][0].keys()))
-        print(list(w['data'][0].values()))
-
-
+    trydata = k[0]['data']
+    print(len(trydata))
+    for event in trydata:
+        print(event['text'])
+        print(event.values())
+        print("\n")
+    #print(type(trydata))
+    #print(trydata.keys())
+    #print(trydata['text'])
 
     '''
     print(10*"== one =")
