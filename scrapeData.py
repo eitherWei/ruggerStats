@@ -86,7 +86,6 @@ def getGameMetaData(stats):
 #    print(stats['gamePackage'])
     ## iterated as far as gamePackage all empty
 #    print(pprint.pprint(stats['gamePackage']))
-
     datum = stats['gamePackage']
     print(type(datum))
     import pandas as pd
@@ -294,7 +293,6 @@ def examineMatchHeadtoHead(datum):
         # 4 == final score
         # 14 == name o team
 
-
     values = list(dataDict['team'].keys())
     for value in dataDict['events']:
         print(type(value))
@@ -302,47 +300,134 @@ def examineMatchHeadtoHead(datum):
         print(10*"--")
         print(value.values())
 
-
-
-
-def extractMethodInstances(statsvw):
+def extractMethodInstances(stats):
     ## all data exists in 'gamePackage'
-    datum =  stats['gamePackage']['matchEvents']
-
-    ## contained in datumkeys/matchEvents are all data points needed
-    ## target datapoints  ##
-
-    #print(len(datum['col'][0]))
-    #print("\n")
-    #print(len(datum['col'][1]))
-
-    ## check the first for worth
-    ## return method needs to be in the form of a dictionary to utilise dictionary -- update method
-    (k , v) = retrieveListDictValues(datum)
-    print(k)
-    print(v)
+    ## takes in stats from getGameMetaData
+    # ----> drills into just the window area of the html page
+    # return matchEvents
+    datum =  stats['gamePackage']
+    matchStats = extractAllSuperMethod(datum)
+    ## method takes in matchStats and returns a friendly representation
+    sortedData = cleanMatchStats(matchStats)
 
 
+def cleanMatchStats(matchStats):
+    print("---cleanMatchStats---")
+    Data = []
+    ## first pass take out all the set ones
+    for item in matchStats:
+        if len(item) == 3:
+            Data.append(item)
+        else:
+            ## first exception array of 4 error point removed
+            if len(item) != 5:
+                item = removeFirstEntry(item, 1 , len(item))
+                Data.append(item)
+            else:
+            ## second exception "Possession" has dublicate values
+                if item['text'] == "Possession":
+                    item = removeFirstEntry(item, 2 , len(item))
+                    Data.append(item)
+                else:
+                ## third exception when values are lumped
+                    Data.extend(splitDictInTwo(item))
+    return Data
 
-def retrieveListDictValues(datum):
-    print(type(datum['col'][0][0]))
-    print(len(datum['col'][0][0]['data']))
+def splitDictInTwo(item):
+    print("---splitDictInTwo---")
+    itemA = removeFirstEntry(item, 0 , 2)
+    itemA['text'] = item['text'] + "_home"
+    itemB = removeFirstEntry(item, 2 , len(item))
+    itemB['text'] = item['text'] + "_away"
+    return [itemA, itemB]
 
-    valueList = []
-    for value in datum['col'][0][0]['data']:
-        valueList.append(list(value.values()))
+def removeFirstEntry(item, start, stop):
+    print("---removeFirstEntry---")
+    keys = list(item.keys())[start:stop]
+    values = list(item.values())[start:stop]
+    dictionary = dict(zip(keys, values))
+    return dictionary
 
-    return (list(datum['col'][0][0]['data'][0].keys()) , valueList)
+def extractAllSuperMethod(datum1):
+    print("---extractAllSuperMethod---")
+    # no1 matchEvents
+    #datum = datum1
+    sect = "matchEvents"
+    datum = datum1[sect]['col']
+    allDatum = []
 
+    # box 1
+    allDatum = retrieveListDictValues(datum[0][0]['data'], allDatum)
+    # box 2 - header
+    allDatum = retrieveListDictValues(datum[1][0]['data'], allDatum)
+    # box 2 - content
+    allDatum = retrieveListDictValues(datum[1][1]['data'], allDatum)
+    # box 3 - extractmatchAttacking
+
+    #num = 21
+    sect = 'matchAttacking'
+    datum = datum1[sect]['col']
+    allDatum = retrieveListDictValues(datum[0][0]['data'], allDatum)
+    # box 2 - header
+    allDatum = retrieveListDictValues(datum[1][0]['data'], allDatum)
+    # box 2 - content
+    #allDatum = retrieveListDictValues(datum[1][1]['data'], allDatum)
+
+    #num = 22
+    sect = "matchDefending"
+    datum = datum1[sect]['col']
+
+    # first box 1
+    allDatum = retrieveListDictValues(datum[0][0]['data'], allDatum)
+    #frst box 2
+    allDatum = retrieveListDictValues(datum[0][1]['data'], allDatum)
+    # box 2 - header
+    allDatum = retrieveListDictValues(datum[1][0]['data'], allDatum)
+    # box 5 -
+
+    #num = 23
+    sect = "matchDiscipline"
+    datum = datum1[sect]['col']
+
+    # first box 1
+    allDatum = retrieveListDictValues(datum[0][0]['data'], allDatum)
+    #frst box 2
+    allDatum = retrieveListDictValues(datum[1][0]['data'], allDatum)
+
+    return allDatum
+    '''
+    print(len(allDatum))
+    for item in allDatum:
+        print(type(item))
+        print(item)
+    '''
+
+def retrieveListDictValues(datum, allDatum):
+    #print(len(datum))
+    #print(datum)
+    if returnDict(datum):
+        allDatum.extend(datum)
+    else:
+        allDatum.append(datum)
+
+    return allDatum
+
+def returnDict(inp):
+    if isinstance(inp, list):
+        return True
+
+    return False
+
+#    print(type(datum['col'][0][0]))
+#    print(len(datum['col'][0][0]['data']))
+
+#    valueList = []
+#    for value in datum['col'][0][0]['data']:
+#        valueList.append(list(value.values()))
+
+#    return (list(datum['col'][0][0]['data'][0].keys()) , valueList)
 
     #return(list(value.keys()), list(value.values())
-
-
-
-
-
-
-
 
     '''
     val = "home"
@@ -366,12 +451,6 @@ def retrieveListDictValues(datum):
     print(datum[title][keySet[1]])
     #print(datum)
     '''
-
-
-
-
-
-
 
 
 
