@@ -309,6 +309,13 @@ def extractMethodInstances(stats):
     matchStats = extractAllSuperMethod(datum)
     ## method takes in matchStats and returns a friendly representation
     sortedData = cleanMatchStats(matchStats)
+    convertMatchStatsSyntax(sortedData)
+
+
+def convertMatchStatsSyntax(sortedData):
+    print(len(sortedData))
+    for item in sortedData:
+        print(item)
 
 
 def cleanMatchStats(matchStats):
@@ -317,6 +324,10 @@ def cleanMatchStats(matchStats):
     ## first pass take out all the set ones
     for item in matchStats:
         if len(item) == 3:
+            # exception a - separate possession per half
+            if item['text'] == "Possession 1H/2H":
+                extractSplitVariableDicts(item)
+
             Data.append(item)
         else:
             ## first exception array of 4 error point removed
@@ -332,6 +343,24 @@ def cleanMatchStats(matchStats):
                 ## third exception when values are lumped
                     Data.extend(splitDictInTwo(item))
     return Data
+def extractSplitVariableDicts(item):
+
+
+
+    def returnList(item, HA):
+        listeeA = item[HA].split("/")
+        keyA = ['first', 'second', 'text']
+        titleA = item['text'] + "_" + HA
+        listeeA.append(titleA)
+        return listeeA
+
+    listeeA = returnList(item, 'homeValue')
+    listeeB = returnList(item, 'awayValue')
+    print(listeeA)
+    print(listeeB)
+    print(item)
+
+
 
 def splitDictInTwo(item):
     print("---splitDictInTwo---")
