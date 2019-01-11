@@ -4,9 +4,15 @@ import re
 import pprint
 
 
+'''
+done
+    2. Examine prospect of matchSummary  --> examineMatchSummary()
+todo:
+    1. Take the list of head to heads --> datum[list(datum.keys())[31]] count up the players present. The outcome of the game. Identify if there are certain players that land on the winning side more than others
+        --> examineMatchHeadtoHead # not needed for now
+    3. matchAwayForm/home 25/22 --> contains the form that the teams are in , could be useful down  the line skip for now
 
-
-
+'''
 def getMetaData(url):
     # link to original data - will need to be taken in as a dynamic input
     print(url)
@@ -117,7 +123,101 @@ def getGameMetaData(stats):
     print("------------------------------")
     print("\n\n\n")
     d = extractmatchEvents(datum['matchEvents'])
-    #print(d)
+
+    #print(type(datum))
+    #print(len(datum.keys()))
+    #print("\n")
+    #print(50*"%")
+    #print(datum.keys())
+
+    for i in range(0, len(datum.keys())):
+        print(list(datum.keys())[i])
+        print(datum[list(datum.keys())[i]])
+        print("i === " + str(i))
+
+        print("\n\n\n")
+        print(50*"-")
+
+
+
+    d = extractmatchEvents(datum['matchEvents'])
+    print(d)
+    #print(datum[list(datum.keys())[33]])
+    #examineMatchHeadtoHead(datum) ## not needed for now
+    extractMatchDiscipline(datum)
+    extractMatchGlossary(datum)
+    extractmatchAttacking(datum)
+
+def extractmatchAttacking(datum):
+    ## matchAttackinng == 19
+    print("--extractmatchAttacking--\n")
+    num = 21
+    data = datum[list(datum.keys())[num]]
+    keySet = list(data.keys())
+    print(keySet)
+    print(len(data['col']))
+    print(data['col'][0][0]['data'])
+    print("\n")
+
+    for item in data['col'][1][0]['data']:
+        print(item.keys())
+        print(item.values())
+        print("\n")
+
+
+
+def extractMatchGlossary(datum):
+    ## MatchGlossary == 22
+    num  = 22
+    data = datum[list(datum.keys())[num]]
+    keySet = list(datum.keys())
+    '''
+    print(len(datum[keySet[num]]))
+    print(datum[keySet[num]]['col'][0])
+    print("\n")
+    print(datum[keySet[num]]['col'][1])
+    print("\n\n\n")
+    '''
+    def iterateList(listee):
+
+        for value in listee:
+            print(value['data'].keys())
+            print(value['data'].values())
+            print("\n")
+
+    iterateList(datum[keySet[num]]['col'][0])
+    print("\n")
+    iterateList(datum[keySet[num]]['col'][1])
+
+    '''
+    for k, v in datum[keySet[num]]['col']:
+        print(k , v)
+        print("\n")
+    '''
+
+
+def extractMatchDiscipline(datum):
+    ## matchDiscipline == 23
+    ## ignore everything but the values found in 'col'
+    ## datum['matchDiscipline']['col'][0]
+    ## content to be found at datum['matchDiscipline']['col'][1][0]['data']
+    num  = 23
+    data = datum[list(datum.keys())[num]]
+    data =  data['col']
+
+    #print(datum['matchDiscipline']['col'][0])
+    #print("\n")
+    #print(datum['matchDiscipline']['col'][1])
+
+    print(10*"^")
+    for dict1 in datum['matchDiscipline']['col'][1][0]['data']:
+        print(dict1.keys())
+        print(dict1.values())
+        print("\n")
+
+
+    print(datum['matchDiscipline']['col'][0][0]['data'].keys())
+    print(datum['matchDiscipline']['col'][0][0]['data'].values())
 
 
 def extractmatchEvents(datum):
@@ -131,7 +231,7 @@ def extractmatchEvents(datum):
 
     d_0 = d[0]
     print(len(d_0))
-    print(d_0)
+    #print(d_0)
     print(50*"=")
     print("\n")
 
@@ -143,31 +243,134 @@ def extractmatchEvents(datum):
     ## key is made up of type/data - we are interested in data
     k = list(d_0)
     trydata = k[0]['data']
-    print(len(trydata))
+    #print(len(trydata))
     for event in trydata:
-        print(event['text'])
+        #print(event['text'])
         print(event.values())
-        print("\n")
-    #print(type(trydata))
-    #print(trydata.keys())
-    #print(trydata['text'])
 
-    '''
+    print("\n")
     print(10*"== one =")
-    d_1 = d[1]
 
-    print(len(d_1))
+    d_1 = list(d[1])
+    #targetData = d_1[0]['data']
 
-    print(10*"-- a --")
-    print(type(d_1[0]))
-    print(d_1[0].keys())
+    print(d_1[0]['data'])
 
-    print(10*"-- b --")
-    print(d_1[1].keys())
-    print(type(d_1[1]))
-    '''
+    for item in d_1[1]['data']:
+        print(item)
+
+    #print(datum.keys())
+    #print(datum['title'])
+    #print("\n***\n")
 
     return d
+
+
+def examineMatchHeadtoHead(datum):
+    # headToHead found in 31
+    # datum = stats['gamePackage'] --> directly drill into target area in match
+    num = 31
+#    print(datum[list(datum.keys())[num]][0])
+    dataDict = datum[list(datum.keys())[num]][0]
+    #print(datum[list(datum.keys())[num]])
+    print(50*"=-=-")
+    ## Title of area of interest
+    print(list(datum.keys())[num] )
+    ## int location of variable
+    print(num)
+
+    ## look at the keys of interest
+    print(dataDict.keys())
+    ## keys are team and event
+    # team == 6  :: type dict
+    # events == 5 :: type List
+    #print(type(dataDict['team']))
+    print(10*"-")
+    #print(len(dataDict['events']))
+    # [1, 3 ]
+
+    ## not much going on in 'events'
+        # 3 == date/time
+        # 4 == final score
+        # 14 == name o team
+
+
+    values = list(dataDict['team'].keys())
+    for value in dataDict['events']:
+        print(type(value))
+        print(value.keys())
+        print(10*"--")
+        print(value.values())
+
+
+
+
+def extractMethodInstances(statsvw):
+    ## all data exists in 'gamePackage'
+    datum =  stats['gamePackage']['matchEvents']
+
+    ## contained in datumkeys/matchEvents are all data points needed
+    ## target datapoints  ##
+
+    #print(len(datum['col'][0]))
+    #print("\n")
+    #print(len(datum['col'][1]))
+
+    ## check the first for worth
+    ## return method needs to be in the form of a dictionary to utilise dictionary -- update method
+    (k , v) = retrieveListDictValues(datum)
+    print(k)
+    print(v)
+
+
+
+def retrieveListDictValues(datum):
+    print(type(datum['col'][0][0]))
+    print(len(datum['col'][0][0]['data']))
+
+    valueList = []
+    for value in datum['col'][0][0]['data']:
+        valueList.append(list(value.values()))
+
+    return (list(datum['col'][0][0]['data'][0].keys()) , valueList)
+
+
+    #return(list(value.keys()), list(value.values())
+
+
+
+
+
+
+
+
+    '''
+    val = "home"
+    #print(val)
+
+    #print((datum[list(datum.keys())[num]])[val])
+    #print(len(datum[list(datum.keys())[num]][val]))
+    datumKeys = list(datum.keys())
+    #print(len(datumKeys))
+#    print(datum[datumKeys[num]][val])
+    title = datumKeys[num]
+    keySet = list(datum[title].keys())
+    print(keySet)
+
+    print("-=-=-=-")
+    print(keySet[0])
+    print(datum[title][keySet[0]])
+    print(datum[title][keySet[0]].keys())
+    print("8-=-=-=-8")
+    print(keySet[1])
+    print(datum[title][keySet[1]])
+    #print(datum)
+    '''
+
+
+
+
+
 
 
 

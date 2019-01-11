@@ -1,4 +1,4 @@
-from scrapeData import extractPlayerDeets , getMetaData , extractAllPlayers , getGameMetaData
+from scrapeData import extractPlayerDeets , extractMethodInstances, getMetaData , extractAllPlayers , getGameMetaData
 #from dbCreation import insertPlayerData , inputValue , readDB , dynamicTableCreation , createTable
 from mainDbCreation import  extractDBcontent, returnColumnHeaders ,  extractDaysPlayerMatchDetails, deleteTable, createTable , insertPlayerData , readDB , readingFilesList
 '''
@@ -52,5 +52,8 @@ df.to_csv('data/processedTable.csv')
 fl = readingFilesList()
 print(fl)
 stats = getMetaData(fl[0])
-print(fl[0])
-getGameMetaData(stats)
+#print(fl[0])
+### temporarily comment code , contains work on extracting match data for first two message boxes
+#getGameMetaData(stats)
+## takes in the htmnl for any given map
+extractMethodInstances(stats)
