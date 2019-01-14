@@ -78,6 +78,7 @@ def extractAllPlayers(stats, HA):
         value[2].append('finalScore')
         # append the final list to the team list
         playerList.append(value[1])
+
     return (playerList , value[2])
 
 def getGameMetaData(stats):
@@ -90,45 +91,12 @@ def getGameMetaData(stats):
     print(type(datum))
     import pandas as pd
 
-    #df = pd.DataFrame(datum)
-    #print(df.head())
-
-    #print(len(datum.keys()))
-    #print(datum.keys())
-    #print(10*"-")
-    #print(datum['matchEvents'].keys())
-
-
-    #print(10*"=")
-    #print(datum['matchEvents']['col'])
-    #print(10*"*")
-    #print(datum['matchAttacking'].keys())
-    #print(10*"attacking~")
-    #print(datum['matchAttacking']['col'])
-    #print(10*"~~")
-    #print(datum.keys())
-    #print(10*"# # ")
-    #print(datum[list(datum.keys())[18]])
-    #print(list(datum.keys())[18])
-    #print("--"*10)
-    #num = 23
-    #print(datum[list(datum.keys())[num]])
-    #print(10*("&&"))
-    #print(list(datum.keys())[num])
-    ##matchLineUp == full list of all players
     print("\n")
     print("------------------------------")
     print("matchEvents")
     print("------------------------------")
     print("\n\n\n")
     d = extractmatchEvents(datum['matchEvents'])
-
-    #print(type(datum))
-    #print(len(datum.keys()))
-    #print("\n")
-    #print(50*"%")
-    #print(datum.keys())
-
     for i in range(0, len(datum.keys())):
         print(list(datum.keys())[i])
         print(datum[list(datum.keys())[i]])
@@ -137,15 +105,13 @@ def getGameMetaData(stats):
         print("\n\n\n")
         print(50*"-")
 
-
-
-    d = extractmatchEvents(datum['matchEvents'])
-    print(d)
+    #d = extractmatchEvents(datum['matchEvents'])
+    #print(d)
     #print(datum[list(datum.keys())[33]])
     #examineMatchHeadtoHead(datum) ## not needed for now
-    extractMatchDiscipline(datum)
-    extractMatchGlossary(datum)
-    extractmatchAttacking(datum)
+    #extractMatchDiscipline(datum)
+    #extractMatchGlossary(datum)
+    #extractmatchAttacking(datum)
 
 def extractmatchAttacking(datum):
     ## matchAttackinng == 19
@@ -164,19 +130,12 @@ def extractmatchAttacking(datum):
         print("\n")
 
 
-
 def extractMatchGlossary(datum):
     ## MatchGlossary == 22
     num  = 22
     data = datum[list(datum.keys())[num]]
     keySet = list(datum.keys())
-    '''
-    print(len(datum[keySet[num]]))
-    print(datum[keySet[num]]['col'][0])
-    print("\n")
-    print(datum[keySet[num]]['col'][1])
-    print("\n\n\n")
-    '''
+
     def iterateList(listee):
 
         for value in listee:
@@ -188,12 +147,6 @@ def extractMatchGlossary(datum):
     print("\n")
     iterateList(datum[keySet[num]]['col'][1])
 
-    '''
-    for k, v in datum[keySet[num]]['col']:
-        print(k , v)
-        print("\n")
-    '''
-
 
 def extractMatchDiscipline(datum):
     ## matchDiscipline == 23
@@ -204,20 +157,14 @@ def extractMatchDiscipline(datum):
     data = datum[list(datum.keys())[num]]
     data =  data['col']
 
-    #print(datum['matchDiscipline']['col'][0])
-    #print("\n")
-    #print(datum['matchDiscipline']['col'][1])
-
     print(10*"^")
     for dict1 in datum['matchDiscipline']['col'][1][0]['data']:
         print(dict1.keys())
         print(dict1.values())
         print("\n")
 
-
     print(datum['matchDiscipline']['col'][0][0]['data'].keys())
     print(datum['matchDiscipline']['col'][0][0]['data'].values())
-
 
 def extractmatchEvents(datum):
     # keys found in matchEvents
@@ -234,12 +181,12 @@ def extractmatchEvents(datum):
     print(50*"=")
     print("\n")
 
-
     ## module drills into text found in the first list and retrieves
     ## number of tries in the game
     #trydata = type(k['data'][0])
 #    print(type(trydata))
     ## key is made up of type/data - we are interested in data
+
     k = list(d_0)
     trydata = k[0]['data']
     #print(len(trydata))
@@ -257,10 +204,6 @@ def extractmatchEvents(datum):
 
     for item in d_1[1]['data']:
         print(item)
-
-    #print(datum.keys())
-    #print(datum['title'])
-    #print("\n***\n")
 
     return d
 
@@ -309,6 +252,7 @@ def extractMethodInstances(stats):
     matchStats = extractAllSuperMethod(datum)
     ## method takes in matchStats and returns a friendly representation
     sortedData = cleanMatchStats(matchStats)
+
     convertMatchStatsSyntax(sortedData)
 
 
@@ -317,7 +261,6 @@ def convertMatchStatsSyntax(sortedData):
     for item in sortedData:
         print(item)
 
-
 def cleanMatchStats(matchStats):
     print("---cleanMatchStats---")
     Data = []
@@ -325,10 +268,15 @@ def cleanMatchStats(matchStats):
     for item in matchStats:
         if len(item) == 3:
             # exception a - separate possession per half
-            if item['text'] == "Possession 1H/2H":
-                extractSplitVariableDicts(item)
-
-            Data.append(item)
+            if "1H/2H" in item['text']:
+                var = item['text'].split(" ")
+                item = extractSplitVariableDicts(item , var[0])
+                Data.extend(item)
+            elif " Won" in item['text']:
+                item = extractRuckMaulVal(item)
+                Data.extend(item)
+            else:
+                Data.append(item)
         else:
             ## first exception array of 4 error point removed
             if len(item) != 5:
@@ -343,32 +291,77 @@ def cleanMatchStats(matchStats):
                 ## third exception when values are lumped
                     Data.extend(splitDictInTwo(item))
     return Data
-def extractSplitVariableDicts(item):
 
+def extractRuckMaulVal(item):
 
+    def separate(var, HA):
+        v = var.split(" ")
+        return [v[0], v[2], item['text'] + HA]
 
-    def returnList(item, HA):
-        listeeA = item[HA].split("/")
-        keyA = ['first', 'second', 'text']
-        titleA = item['text'] + "_" + HA
-        listeeA.append(titleA)
-        return listeeA
+    keys = ["homeValue" , "awayValue" , "text"]
+    array  = separate(list(item.values())[0], " home")
+    array1  = separate(list(item.values())[1], " away")
 
-    listeeA = returnList(item, 'homeValue')
-    listeeB = returnList(item, 'awayValue')
-    print(listeeA)
-    print(listeeB)
-    print(item)
+    #array.append()
+    return [dict(zip(keys,array)), dict(zip(keys,array1))]
 
+def extractSplitVariableDicts(item, var):
+    print("----extractSplitVariableDicts----")
+    def returnList(item):
+        # create one array of the variables
+        factors = []
+        for v in item.values():
+            v = v.split("/")
+            # looop over factors strim and prioritise
+            factors.extend(v)
+
+        factors2 = []
+        for f in factors:
+            f = f.strip().split(" ")
+            if len(f) > 1:
+                f = [f[1]]
+            factors2.extend(f)
+
+        first_half = []
+        second_half = []
+        for i in range(0, len(factors2)):
+            if i % 2 == 1:
+                first_half.append(factors2[i])
+            else:
+                second_half.append(factors2[i])
+
+        first_half[-1] = first_half[-1] + "_" +  var
+        second_half[-1] = second_half[-1] + "_" +  var
+
+        keys = ["homeValue" , "awayValue" , "text"]
+        return [dict(zip(keys,first_half)), dict(zip(keys,second_half))]
+
+    listeeA = returnList(item)
+    return listeeA
 
 
 def splitDictInTwo(item):
     print("---splitDictInTwo---")
+    print(item)
+    lossedHome = int(list(item.values())[0]) - int(list(item.values())[1])
+    lossedAway = int(list(item.values())[2]) - int(list(item.values())[3])
+
+    text = item['text'].split(" ")[0]
+    textLoss = text + " loss"
+    textWon = text + " won"
+
+    values = [lossedHome, lossedAway, textLoss]
+    values1 = [item['homeWon'], item['awayWon'], textWon ]
+    keys = ['homeValue', "awayValue", "text"]
+    return [dict(zip(keys, values)), dict(zip(keys, values1))]
+
+    '''
     itemA = removeFirstEntry(item, 0 , 2)
     itemA['text'] = item['text'] + "_home"
     itemB = removeFirstEntry(item, 2 , len(item))
     itemB['text'] = item['text'] + "_away"
     return [itemA, itemB]
+    '''
 
 def removeFirstEntry(item, start, stop):
     print("---removeFirstEntry---")
@@ -377,13 +370,22 @@ def removeFirstEntry(item, start, stop):
     dictionary = dict(zip(keys, values))
     return dictionary
 
+
+
+
+
 def extractAllSuperMethod(datum1):
     print("---extractAllSuperMethod---")
+
+    sect = "gameStrip"
+    datum = datum1[sect]
+    allDatum = addMetaData(datum)
+
     # no1 matchEvents
     #datum = datum1
     sect = "matchEvents"
     datum = datum1[sect]['col']
-    allDatum = []
+
 
     # box 1
     allDatum = retrieveListDictValues(datum[0][0]['data'], allDatum)
@@ -424,12 +426,26 @@ def extractAllSuperMethod(datum1):
     allDatum = retrieveListDictValues(datum[1][0]['data'], allDatum)
 
     return allDatum
-    '''
-    print(len(allDatum))
-    for item in allDatum:
-        print(type(item))
-        print(item)
-    '''
+
+def addMetaData(datum):
+    print(datum["teams"]['home']['name'])
+    print(datum["teams"]['away']['name'])
+    print(datum["teams"]['home']['score'])
+    print(datum["teams"]['away']['score'])
+    print(50*"=+=")
+    #print(datum.keys())
+
+    winLoss = [0, 0]
+    if(int(datum["teams"]['home']['score']) > int(datum["teams"]['away']['score'])):
+        winLoss[0] = 1
+    else:
+        winLoss[1] = 1
+
+    dictWinLoss = {"homeValue": winLoss[0], "awayValue": winLoss[1], "text": "winLoss"}
+    dictTeam = {"homeValue": datum["teams"]['home']['name'], "awayValue": datum["teams"]['away']['name'], "text" : "teams"}
+    dictScore = {"homeValue": datum["teams"]['home']['score'], "awayValue": datum["teams"]['away']['score'], "text" : "score"}
+
+    return([dictWinLoss, dictTeam, dictScore])
 
 def retrieveListDictValues(datum, allDatum):
     #print(len(datum))
@@ -446,45 +462,6 @@ def returnDict(inp):
         return True
 
     return False
-
-#    print(type(datum['col'][0][0]))
-#    print(len(datum['col'][0][0]['data']))
-
-#    valueList = []
-#    for value in datum['col'][0][0]['data']:
-#        valueList.append(list(value.values()))
-
-#    return (list(datum['col'][0][0]['data'][0].keys()) , valueList)
-
-    #return(list(value.keys()), list(value.values())
-
-    '''
-    val = "home"
-    #print(val)
-
-    #print((datum[list(datum.keys())[num]])[val])
-    #print(len(datum[list(datum.keys())[num]][val]))
-    datumKeys = list(datum.keys())
-    #print(len(datumKeys))
-#    print(datum[datumKeys[num]][val])
-    title = datumKeys[num]
-    keySet = list(datum[title].keys())
-    print(keySet)
-
-    print("-=-=-=-")
-    print(keySet[0])
-    print(datum[title][keySet[0]])
-    print(datum[title][keySet[0]].keys())
-    print("8-=-=-=-8")
-    print(keySet[1])
-    print(datum[title][keySet[1]])
-    #print(datum)
-    '''
-
-
-
-    #print(datum['matchDetails']['Game Info'])
-
 
 #######################################################
 # running the above code

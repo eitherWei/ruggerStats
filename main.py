@@ -51,7 +51,7 @@ df.to_csv('data/processedTable.csv')
 # 1 get files
 fl = readingFilesList()
 print(fl)
-stats = getMetaData(fl[0])
+stats = getMetaData(fl[1])
 #print(fl[0])
 ### temporarily comment code , contains work on extracting match data for first two message boxes
 #getGameMetaData(stats)
