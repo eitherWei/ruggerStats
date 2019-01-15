@@ -1,6 +1,6 @@
 from scrapeData import extractPlayerDeets , extractMethodInstances, getMetaData , extractAllPlayers , getGameMetaData
 #from dbCreation import insertPlayerData , inputValue , readDB , dynamicTableCreation , createTable
-from mainDbCreation import  extractDBcontent, returnColumnHeaders ,  extractDaysPlayerMatchDetails, deleteTable, createTable , insertPlayerData , readDB , readingFilesList
+from mainDbCreation import  sanitiseMetaList, createPrimaryKey, extractDBcontent, returnColumnHeaders ,  extractDaysPlayerMatchDetails, deleteTable, createTable , insertPlayerData , readDB , readingFilesList
 '''
 #deleteTable()
 
@@ -56,4 +56,18 @@ stats = getMetaData(fl[1])
 ### temporarily comment code , contains work on extracting match data for first two message boxes
 #getGameMetaData(stats)
 ## takes in the htmnl for any given map
-extractMethodInstances(stats)
+import pandas as pd
+matchValues = extractMethodInstances(stats)
+sanitisedList = sanitiseMetaList(matchValues[2:])
+sanitisedList.extend(matchValues[:2])
+df = pd.DataFrame(sanitisedList)
+print(df.shape)
+print(df)
+
+createTable = False
+if createTable:
+    primaryKey = createPrimaryKey(fl[0])
+    print(primaryKey)
+    ## extract meta match data
+
+    print()

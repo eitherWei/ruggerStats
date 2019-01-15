@@ -16,6 +16,54 @@ cursor = db.cursor()
     # list[playerDict] == a dictionary for eachPlayer
     # uniqueMatchId to be used as primary key in player list
 '''
+
+def createMetaMatchTable(headers):
+    print(headers)
+
+def sanitiseMetaList(List):
+    allData = []
+    headers = ['homeValue', 'awayValue', 'text']
+    for item in List:
+        title = list(item.values())[-1]
+        lista = convertToInt(list(item.values()))
+        lista.append(title)
+        lista = dict(zip(headers, lista))
+        allData.append(lista)
+
+    return allData
+
+
+
+
+def convertToInt(list):
+    tempList = []
+    for item in list[:-1]:
+        #print(item)
+        try:
+            item = re.sub("\D", "", item)
+        except:
+            item = item
+        #print(int(item))
+        tempList.append(int(item))
+    return tempList
+
+# method takes the input url and generates a unique ID
+def createPrimaryKey(str):
+    print(str)
+    # remove the proceeding url
+    str = str.split("?")
+    str = str[1]
+    str = str.split("&")
+    # separate into gameID and LeagueID
+    ## insert incrementor here
+    key = ""
+    for value in str:
+        st = value.split("=")
+        key += st[1]
+
+    return(key)
+
+
 def readDB(show = False):
     #names = [description[0] for description in cursor.description]
     #print(names)

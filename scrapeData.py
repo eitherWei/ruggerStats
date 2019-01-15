@@ -253,7 +253,8 @@ def extractMethodInstances(stats):
     ## method takes in matchStats and returns a friendly representation
     sortedData = cleanMatchStats(matchStats)
 
-    convertMatchStatsSyntax(sortedData)
+    #convertMatchStatsSyntax(sortedData)
+    return sortedData
 
 
 def convertMatchStatsSyntax(sortedData):
@@ -296,14 +297,21 @@ def extractRuckMaulVal(item):
 
     def separate(var, HA):
         v = var.split(" ")
-        return [v[0], v[2], item['text'] + HA]
+        title = item['text'].split(" ")
+
+        # take value made against value achieved
+        lossed = int(v[2]) - int(v[0])
+        return [v[0], str(lossed), title[0]]
 
     keys = ["homeValue" , "awayValue" , "text"]
-    array  = separate(list(item.values())[0], " home")
+    array  = separate(list(item.values())[0], "home")
     array1  = separate(list(item.values())[1], " away")
 
-    #array.append()
-    return [dict(zip(keys,array)), dict(zip(keys,array1))]
+    arraya = [array[0], array1[0], array[2] + " won"]
+    arrayb = [array[1], array1[1], array[2] + " lossed"]
+
+    return [dict(zip(keys,arraya)), dict(zip(keys,arrayb))]
+
 
 def extractSplitVariableDicts(item, var):
     print("----extractSplitVariableDicts----")
@@ -449,7 +457,6 @@ def addMetaData(datum):
 
 def retrieveListDictValues(datum, allDatum):
     #print(len(datum))
-    #print(datum)
     if returnDict(datum):
         allDatum.extend(datum)
     else:
