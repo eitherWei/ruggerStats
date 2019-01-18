@@ -112,6 +112,15 @@ def getGameMetaData(stats):
     #extractMatchDiscipline(datum)
     #extractMatchGlossary(datum)
     #extractmatchAttacking(datum)
+def extractMatchDateLeague(stats):
+    datum = stats['gamePackage']['HeadToHeadNode']
+    keys = list(datum[0].keys())
+    data = datum[0][keys[1]]
+    #print(data[0]['leagueName'])
+    #print(data[0]["gameDate"])
+
+    #, "date" : data[0]["gameDate"]
+    return [{"homeValue" : data[0]['leagueName'], "awayValue" : data[0]['leagueName'] , "text" : "league" } , {"homeValue" : data[0]['gameDate'], "awayValue" : data[0]['gameDate'] , "text" : "date" }]
 
 def extractmatchAttacking(datum):
     ## matchAttackinng == 19

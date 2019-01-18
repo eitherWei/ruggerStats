@@ -18,7 +18,71 @@ cursor = db.cursor()
 '''
 
 def createMetaMatchTable(headers):
-    print(headers)
+    #print(headers)
+
+    def createTable(headers):
+        print(headers.shape)
+        print(10*" %% ")
+        print(headers.columns)
+        headers = list(headers.text)
+        print(headers)
+
+        insertStatement = "CREATE TABLE IF NOT EXISTS MATCHES %s " % (tuple(headers), )
+    #    insertStatement = "CREATE TABLE MATCHES (ID INT PRIMARY KEY);  "
+
+        cursor.execute(insertStatement)
+
+        db.commit()
+
+
+        cursor.execute(insertStatement)
+
+
+
+        try:
+            cursor.execute("alter table MATCHES add column ID ;")
+            db.commit()
+        except:
+            print("althering comment ")
+        print("table commited ")
+
+    createTable(headers)
+
+
+def readDBMatchMeta(show = False):
+    db.row_factory = sq.Row
+    # create a select statement
+    insertStatement = ''' SELECT * FROM MATCHES '''
+    # execute the action
+    cursor.execute(insertStatement)
+    # extract the table items
+    data = cursor.fetchall()
+
+    if(show):
+        for d in data:
+            print(d)
+    print(10*"-")
+    print(len(data))
+    print(10*"-")
+
+    return data
+
+def insertMatchData(colheads, liste):
+    print(3*"\n")
+    print("-------- colheads -------------")
+    print(colheads)
+    print(3*"\n")
+    print("-------- listOutPut -------------")
+    print(liste)
+
+    insertStatement = "INSERT INTO MATCHES %s " % (tuple(colheads),)
+    # create variable string
+    insertStatement = insertStatement + " VALUES %s " % (tuple(liste), )
+    # create execute action
+    cursor.execute(insertStatement)
+    # conmit the action
+    db.commit()
+
 
 def sanitiseMetaList(List):
     allData = []
@@ -231,3 +295,20 @@ def convertDFtoInts(df):
     df.finalScore = winLoss
 
     return df
+
+
+
+
+def deleteTable(tb):
+    try:
+        # create drop statement
+        dropTableStatement = "DROP TABLE " + tb
+        # execute the action
+        cursor.execute(dropTableStatement)
+        # commit to db
+        db.commit()
+        print("table deleted")
+    except:
+        print("error deleting table")
+        # remove grit
+        db.rollback()
