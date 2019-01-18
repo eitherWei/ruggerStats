@@ -124,7 +124,6 @@ def createPrimaryKey(str):
     for value in str:
         st = value.split("=")
         key += st[1]
-
     return(key)
 
 
@@ -223,7 +222,7 @@ def createTable(headers):
     db.commit()
 
 def readingFilesList():
-    file = open("gamesList")
+    file = open("championsCup.txt")
     fileList = []
     for line in file:
         fileList.append(line.rstrip('\n'))

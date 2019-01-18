@@ -13,6 +13,30 @@ todo:
     3. matchAwayForm/home 25/22 --> contains the form that the teams are in , could be useful down  the line skip for now
 
 '''
+def createFileList():
+    # sample header = http://www.espn.co.uk/rugby/matchstats?gameId=293594&league=271937
+    gameID = 293594
+    leagueID =  271937
+    urlList = []
+    while gameID > 293584:
+        url = "http://www.espn.co.uk/rugby/matchstats?gameId=" + str(gameID) + "&league=" + str(leagueID)
+        try:
+            getMetaData(url)
+            print("game found")
+            urlList.append(url)
+        except:
+            print("invalid ID")
+        gameID = gameID - 1
+
+    print(len(urlList))
+    writeListToFile(urlList)
+
+def writeListToFile(my_list):
+
+    with open('championsCup.txt', 'w') as f:
+        for item in my_list:
+            f.write("%s\n" % item)
+
 def getMetaData(url):
     # link to original data - will need to be taken in as a dynamic input
     print(url)

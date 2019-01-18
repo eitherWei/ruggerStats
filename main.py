@@ -1,4 +1,4 @@
-from scrapeData import extractMatchDateLeague, extractPlayerDeets , extractMethodInstances, getMetaData , extractAllPlayers , getGameMetaData
+from scrapeData import createFileList , extractMatchDateLeague, extractPlayerDeets , extractMethodInstances, getMetaData , extractAllPlayers , getGameMetaData
 #from dbCreation import insertPlayerData , inputValue , readDB , dynamicTableCreation , createTable
 from mainDbCreation import deleteTable, insertMatchData, readDBMatchMeta, createMetaMatchTable,  sanitiseMetaList, createPrimaryKey, extractDBcontent, returnColumnHeaders ,  extractDaysPlayerMatchDetails, deleteTable, createTable , insertPlayerData , readDB , readingFilesList
 '''
@@ -47,70 +47,53 @@ df.to_csv('data/processedTable.csv')
 '''
 
 
-
+import pandas as pd
 
 
 # extract metadata for last weekends match
 # 1 get files
+
+#createFileList()
 fl = readingFilesList()
-print(fl)
-stats = getMetaData(fl[1])
-#print(fl[0])
-### temporarily comment code , contains work on extracting match data for first two message boxes
-getGameMetaData(stats)
-## takes in the htmnl for any given map
 
-
-
-
-
-import pandas as pd
-
-# method extracts league and date
-metaData = extractMatchDateLeague(stats)
-
-# extracts main match points
-matchValues = extractMethodInstances(stats)
-
-# add date/league to match data
-
-
-sanitisedList = sanitiseMetaList(matchValues[2:])
-
-print(sanitisedList)
-print(type(sanitisedList))
-print(len(sanitisedList))
-sanitisedList.extend(metaData)
-print(len(sanitisedList))
-
-sanitisedList.extend(matchValues[:2])
-
-df = pd.DataFrame(sanitisedList)
-# put a list of team stuff into the data base
-
-print(df.head())
-
-print(5*"\n")
-matchId = createPrimaryKey(fl[0])
-print(matchId)
-
-listAway = list(df['awayValue'])
-listAway.append(matchId+ "a")
-listHome = list(df['homeValue'])
-listHome.append(matchId + "h")
-colheads = list(df['text'])
-colheads.append("ID")
-
-df = pd.DataFrame(sanitisedList)
-print("--------- list output ----------------")
-#print(liste)
-insertMatchData(colheads, listAway)
-insertMatchData(colheads, listHome)
+mainGo = True
+if mainGo:
+    for file in fl:
+        print(file)
+        stats = getMetaData(file)
+        matchId = createPrimaryKey(file)
+        #print(fl[0])
+        ### temporarily comment code , contains work on extracting match data for first two message boxes
+        #getGameMetaData(stats)
+        ## takes in the htmnl for any given map
+        # method extracts league and date
+        metaData = extractMatchDateLeague(stats)
+        # extracts main match points
+        matchValues = extractMethodInstances(stats)
+        # add date/league to match data
+        sanitisedList = sanitiseMetaList(matchValues[2:])
+        sanitisedList.extend(matchValues[:2])
+        sanitisedList.extend(metaData)
+        df = pd.DataFrame(sanitisedList)
+        # put a list of team stuff into the data base
+        listAway = list(df['awayValue'])
+        listAway.append(matchId+ "a")
+        listHome = list(df['homeValue'])
+        listHome.append(matchId + "h")
+        colheads = list(df['text'])
+        colheads.append("ID")
+        ## append date and time
+        #colheads.append("league")
+        #colheads.append("date")
+        print("--------- list output ----------------")
+        #print(liste)
+        #insertMatchData(colheads, listAway)
+        #insertMatchData(colheads, listHome)
 
 
 ####### ->>> datatable allows duplicates, remove.
 
-deletDB = True
+deletDB = False
 if (deletDB):
     try :
         deleteTable("MATCHES")
@@ -118,10 +101,10 @@ if (deletDB):
         print("able does not exits")
 
 ## to create the table
-createTable = True
+createTable = False
 if createTable:
-    primaryKey = createPrimaryKey(fl[0])
-    print(primaryKey)
+    #primaryKey = createPrimaryKey(fl[0])
+    #print(primaryKey)
     ## extract meta match data
     createMetaMatchTable(df)
     print()
