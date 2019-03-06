@@ -2,6 +2,8 @@ import requests
 import json
 import re
 import pprint
+import pandas as pd
+import numpy as np
 
 
 '''
@@ -13,12 +15,16 @@ todo:
     3. matchAwayForm/home 25/22 --> contains the form that the teams are in , could be useful down  the line skip for now
 
 '''
-def createFileList():
+def createFileList(startID, endID, leagueID = None, compName = "default.txt"):
     # sample header = http://www.espn.co.uk/rugby/matchstats?gameId=293594&league=271937
-    gameID = 293594
-    leagueID =  271937
+#    gameID = 293595
+    gameID = endID
     urlList = []
-    while gameID > 293584:
+    #while gameID > 293060:
+    print(gameID)
+    print(startID)
+    while gameID > startID:
+        print(gameID)
         url = "http://www.espn.co.uk/rugby/matchstats?gameId=" + str(gameID) + "&league=" + str(leagueID)
         try:
             getMetaData(url)
@@ -29,21 +35,27 @@ def createFileList():
         gameID = gameID - 1
 
     print(len(urlList))
-    writeListToFile(urlList)
+    writeListToFile(urlList, compName)
 
-def writeListToFile(my_list):
+def writeListToFile(my_list,  compName):
 
-    with open('championsCup.txt', 'w') as f:
+    with open(compName, 'a') as f:
         for item in my_list:
-            f.write("%s\n" % item)
+            f.write("%s\n" % item)#
+
+        print("Files written to " + compName)
+
+
 
 def getMetaData(url):
+    print("--getMetaData--")
     # link to original data - will need to be taken in as a dynamic input
-    print(url)
+    #print(url)
     #url = "http://www.espn.co.uk/rugby/playerstats?gameId=293905&league=289234"
     #url = "http://www.espn.com.au/rugby/match?gameId=293902&league=289234"
     ## retrieve the data in question : will appear as a <response + [code]>
     html_doc = requests.get(url)
+    print(html_doc)
 
     # parses the data based on below identified section which is where are data lives returns a dictionary
     stats = json.loads(re.search(r"window.__INITIAL_STATE__\s*=\s*({.*});",html_doc.text).group(1))
@@ -137,14 +149,22 @@ def getGameMetaData(stats):
     #extractMatchGlossary(datum)
     #extractmatchAttacking(datum)
 def extractMatchDateLeague(stats):
-    datum = stats['gamePackage']['HeadToHeadNode']
-    keys = list(datum[0].keys())
-    data = datum[0][keys[1]]
-    #print(data[0]['leagueName'])
-    #print(data[0]["gameDate"])
+    try:
+        datum = stats['gamePackage']['HeadToHeadNode']
+        print(datum)
+        print("\ndatum\n")
+        keys = list(datum[0].keys())
+        print(len(keys))
+        data = datum[0][keys[1]]
+        #print(data[0]['leagueName'])
+        #print(data[0]["gameDate"])
 
-    #, "date" : data[0]["gameDate"]
-    return [{"homeValue" : data[0]['leagueName'], "awayValue" : data[0]['leagueName'] , "text" : "league" } , {"homeValue" : data[0]['gameDate'], "awayValue" : data[0]['gameDate'] , "text" : "date" }]
+        #, "date" : data[0]["gameDate"]
+        print("--------data-------------")
+        print(data)
+        return [{"homeValue" : data[0]['leagueName'], "awayValue" : data[0]['leagueName'] , "text" : "league" } , {"homeValue" : data[0]['gameDate'], "awayValue" : data[0]['gameDate'] , "text" : "date" }]
+    except:
+        return [{"homeValue" : "error", "awayValue" :  "error", "text" : "league" } , {"homeValue" :  "error", "awayValue" :  "error" , "text" : "date" }]
 
 def extractmatchAttacking(datum):
     ## matchAttackinng == 19

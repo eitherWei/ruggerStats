@@ -1,5 +1,5 @@
 import sqlite3 as sq
-from scrapeData import extractPlayerDeets , getMetaData , extractAllPlayers
+from scrapeData import extractPlayerDeets , getMetaData , extractAllPlayers , extractMatchDateLeague , getGameMetaData
 # import regex to sanitise list inputs
 import re
 import pandas as pd
@@ -17,36 +17,28 @@ cursor = db.cursor()
     # uniqueMatchId to be used as primary key in player list
 '''
 
-def createMetaMatchTable(headers):
+def createMetaMatchTable(headers, tableName):
     #print(headers)
-
-    def createTable(headers):
+    def createTable(headers, tableName):
         print(headers.shape)
         print(10*" %% ")
         print(headers.columns)
         headers = list(headers.text)
         print(headers)
-
-        insertStatement = "CREATE TABLE IF NOT EXISTS MATCHES %s " % (tuple(headers), )
+        insertStatement = "CREATE TABLE IF NOT EXISTS " + tableName + " %s " % (tuple(headers), )
     #    insertStatement = "CREATE TABLE MATCHES (ID INT PRIMARY KEY);  "
-
         cursor.execute(insertStatement)
-
         db.commit()
-
-
         cursor.execute(insertStatement)
-
-
-
         try:
-            cursor.execute("alter table MATCHES add column ID ;")
+            cursor.execute("alter table" + tableName + "add column ID ;")
             db.commit()
         except:
             print("althering comment ")
+
         print("table commited ")
 
-    createTable(headers)
+    createTable(headers, tableName)
 
 
 def readDBMatchMeta(show = False):
@@ -67,21 +59,31 @@ def readDBMatchMeta(show = False):
 
     return data
 
-def insertMatchData(colheads, liste):
-    print(3*"\n")
-    print("-------- colheads -------------")
-    print(colheads)
-    print(3*"\n")
-    print("-------- listOutPut -------------")
-    print(liste)
+def analyseOneGame(stats):
+    #print(url)
+    ## extract the stats
+#    metaData = getGameMetaData(stats)
+    datum = stats['gamePackage']["gameStrip"]
+    #print(len(datum))
+    #print(datum.keys())
+    #print(datum['isoDate'])
+    #print(datum['header'])
 
-    insertStatement = "INSERT INTO MATCHES %s " % (tuple(colheads),)
+    return [{"homeValue" : datum['header'], "awayValue" : datum['header'] , "text" : "league" } , {"homeValue" : datum['isoDate'], "awayValue" : datum['isoDate'] , "text" : "date" }]
+
+    #print(10*"8")
+    #print(metaData)
+
+def insertMatchData(colheads, liste, tableHead):
+    insertStatement = "INSERT INTO " +  tableHead +  " %s " % (tuple(colheads),)
     # create variable string
     insertStatement = insertStatement + " VALUES %s " % (tuple(liste), )
     # create execute action
     cursor.execute(insertStatement)
     # conmit the action
     db.commit()
+
+    return liste
 
 
 def sanitiseMetaList(List):
@@ -127,12 +129,12 @@ def createPrimaryKey(str):
     return(key)
 
 
-def readDB(show = False):
+def readDB( tableName , show = False):
     #names = [description[0] for description in cursor.description]
     #print(names)
     db.row_factory = sq.Row
     # create an execute statement
-    insertStatement = ''' SELECT * FROM users1 '''
+    insertStatement = ''' SELECT * FROM ''' + tableName
     # execute the action
     cursor.execute(insertStatement)
     # extract the table items
@@ -149,8 +151,16 @@ def readDB(show = False):
 
     return data
 
-def returnColumnHeaders():
-    colheads = cursor.execute("PRAGMA table_info(users1)")
+def readDBPandas(tableName):
+    # Create your connection.
+    cnx = sq.connect('mydb.db')
+
+    df = pd.read_sql_query("SELECT * FROM " +  tableName , cnx)
+    print(df.head())
+
+
+def returnColumnHeaders(tableName):
+    colheads = cursor.execute("PRAGMA table_info(" + tableName + ")")
     #print(type(colheads))
     cols = []
     for d in colheads:
@@ -221,12 +231,14 @@ def createTable(headers):
     cursor.execute(sql)
     db.commit()
 
-def readingFilesList():
-    file = open("championsCup.txt")
+def readingFilesList(compName = "championsCup.txt"):
+    print("reading files found in " + compName)
+    file = open(compName)
     fileList = []
     for line in file:
         fileList.append(line.rstrip('\n'))
 
+    print(str(len(fileList)) + " number of files found")
     return fileList
 
 # inputs the extracted list
@@ -311,3 +323,20 @@ def deleteTable(tb):
         print("error deleting table")
         # remove grit
         db.rollback()
+
+
+def processingDates(df):
+    #print(df.head())
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    #print(df['date'].dt.date)
+    df['date'] = pd.to_datetime(df.date)
+    ## returns  numberical represent of the week .. perfect !
+    #print(df.date.dt.week)
+    df = df.sort_values('date', ascending = "True")
+    return df
+
+def createUniqueIdentifierDict(file):
+    matchId = createPrimaryKey(file)
+    ## create idDict
+    dict = {"homeValue" : matchId+ "h", "awayValue": matchId+ "a", "text" : "ID" }
+    return dict
